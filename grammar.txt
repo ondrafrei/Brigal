@@ -1,0 +1,7 @@
+ENDING: .|:
+LINE: EXPRESSION ENDING
+EXPRESSION: E1 {op_assign E1}|BLOCK_DESCRIPTION
+E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}
+E2: {minus} F
+F: ident|number|string|par_open EXPRESSION par_close
+BLOCK_DESCRIPTION: keyword par_open F par_close|kw_else
