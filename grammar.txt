@@ -1,7 +1,7 @@
 kw_function: bazmek
 kw_if: esli
 kw_else: jinac
-op_assign: "navali"
+op_assign: navali
 sign_minus: -
 op_add: plus
 op_subtract: minus
@@ -12,12 +12,18 @@ par_close: )
 block_start: vocat
 block_end: pocat
 keyword: function_name|kw_if|kw_else|kw_function
-
+kw_function_call: Hola
+array_operator: #
 
 ENDING: .|:
-LINE: EXPRESSION ENDING
-EXPRESSION: E1 {op_assign E1}|BLOCK_DESCRIPTION
-E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}
+LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY
+EXPRESSION: E1 {op_assign E1}
+E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}|
 E2: {sign_minus} F
 F: ident|number|string|par_open EXPRESSION par_close
-BLOCK_DESCRIPTION: keyword {ident} par_open F par_close|kw_else|block_start|block_end
+FC_CALL: kw_function_call F {par_open F{, F} par_close} ENDING
+FC_DEFINE: kw_function F par_open {F{, F}} par_close block_start EXPRESSION {ENDING EXPRESSION} block_end ENDING
+ARRAY_.. : F array_operator F|array_operator
+
+hovno ## = "piča"
+hovno #1 
