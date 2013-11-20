@@ -1,12 +1,14 @@
 kw_function: bazmek
 kw_if: esli
 kw_else: jinac
+kw_while: dokat
 op_assign: navali
 sign_minus: -
 op_add: plus
 op_subtract: minus
 op_multiply: krat
 op_divide: deleno
+op_equals: je shodne s
 par_open: (
 par_close: )
 block_start: vocat
@@ -16,14 +18,19 @@ kw_function_call: Hola
 array_operator: #
 
 ENDING: .|:
-LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY
+THEN: ,
+LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY|CYCLE
 EXPRESSION: E1 {op_assign E1}
 E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}|
 E2: {sign_minus} F
 F: ident|number|string|par_open EXPRESSION par_close
 FC_CALL: kw_function_call F {par_open F{, F} par_close} ENDING
 FC_DEFINE: kw_function F par_open {F{, F}} par_close block_start EXPRESSION {ENDING EXPRESSION} block_end ENDING
-ARRAY_.. : F array_operator F|array_operator
+ARRAY: F array_operator F|array_operator
+BLOCK: block_start LINE+ block_end
+CONDITION: EXPRESSION {op_equals EXPRESSION}
+CYCLE: WHILE|IFELSE
+WHILE: kw_while CONDITION THEN BLOCK
+IFELSE: kw_if CONDITION THEN BLOCK {kw_else BLOCK}
 
-hovno ## = "piča"
-hovno #1 
+(+ = alespoň jednou výskyt předcházejícího výrazu)
