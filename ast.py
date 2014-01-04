@@ -16,11 +16,13 @@ class Block:
 		result = "{"
 		for node in self.code:
 			result = result + "\n" + node.__str__()
-		result = result + "\n}\n"
+		result = result + "\n }\n"
 		return result		 
 
 class BinaryOperator:
-#hovno
+	""" Binary operator. 
+
+	Pamatuje si levy a pravy operand a typ operace, kterou s nimi ma provest. """
 	def __init__(self, left, right, operator):
 		self.left = left
 		self.right = right
@@ -64,10 +66,7 @@ class If:
 	def __str__(self):
 		return "if (%s) %s else %s" % (self.condition, self.trueCase, self.falseCase)
 
-class While:
-	def __init__(self, condition, trueCase):
-		self.condition = condition
-		self.trueCase = trueCase
-		
-	def __str__(self):
-		return "while (%s) %s" % (self.condition, self.trueCase)
+
+
+
+
