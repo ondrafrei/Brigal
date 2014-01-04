@@ -5,49 +5,24 @@ from lexer import Lexer
 class Parser:
 	""" Jednoduchy priklad parseru. Naparsuje nasledujici gramatiku:
 
-	kw_function: bazmek
-	kw_if: esli
-	kw_else: jinac
-	kw_while: dokat
-	op_assign: navali
-	sign_minus: -
-	op_add: plus
-	op_subtract: minus
-	op_multiply: krat
-	op_divide: deleno
-	op_equals: je shodne s
-	par_open: (
-	par_close: )
-	block_start: vocat
-	block_end: pocat
-	keyword: function_name|kw_if|kw_else|kw_function
-	kw_function_call: Hola
-	array_operator: #
+	PROGRAM ::= { STATEMENT }
+	STATEMENT ::= IF_STATEMENT | ASSIGNMENT
+	ASSIGNMENT ::= ident op_assign EXPRESSION
+	EXPRESSION ::= E2 { op_eq E2 }
+	E2 ::= F { op_add | op_sub F }
+	F ::= number | ident | op_paropen EXPRESSION op_parclose
+	IF_STATEMENT ::= if op_paropen EXPRESSION op_parclose [ BLOCK ] [ else BLOCK ]
+	BLOCK ::= op_braceopen { STATEMENT } op_braceclose
 
-	ENDING: .|:
-	THEN: ,
-	LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY|CYCLE
-	EXPRESSION: E1 {op_assign E1}
-	E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}|
-	E2: {sign_minus} F
-	F: ident|number|string|par_open EXPRESSION par_close
-	FC_CALL: kw_function_call F {par_open F{, F} par_close} ENDING
-	FC_DEFINE: kw_function F par_open {F{, F}} par_close block_start EXPRESSION {ENDING EXPRESSION} block_end ENDING
-	ARRAY: F array_operator F|array_operator
-	BLOCK: block_start LINE+ block_end
-	CONDITION: EXPRESSION {op_equals EXPRESSION}
-	CYCLE: WHILE|IFELSE
-	WHILE: kw_while CONDITION THEN BLOCK
-	IFELSE: kw_if CONDITION THEN BLOCK {kw_else BLOCK}
-
-	(+ = alespoň jednou výskyt předcházejícího výrazu)
-    Ten parser se trosku lisi od toho parseru, ktery jsme delali na hodine, protoze uz pouziva ty jednodussi (ty kreténe zakomplexovanej!!!) stromy, o kterych jsem mluvil. Takze misto toho, aby kazde pravidlo melo svoji vlasti tridu (v ast), tak ty tridy pro ten strom odpovidaji spis tomu, co ten program bude delat, nez tomu, jak je napsana gramatika. Blizsi popisky viz jednotlive parsovaci metody nize.
+	Ten parser se trosku lisi od toho parseru, ktery jsme delali na hodine, protoze uz pouziva ty jednoduzsi stromy, o kterych jsem mluvil. Takze misto toho, aby kazde pravidlo melo svoji vlasti tridu (v ast), tak ty tridy pro ten strom odpovidaji spis tomu, co ten program bude delat, nez tomu, jak je napsana gramatika. Blizsi popisky viz jednotlive parsovaci metody nize.
 	"""
 
 
 	def __init__(self, lexer):
 		""" Zalozi parser a zapamatuje si lexer, se kterym bude pracovat. """
 		self.lexer = lexer
+		pass
+
 
 	def pop(self, type = None):
 		""" Abych nemusel tolik psat, provede pop z lexeru. Kdyz specifikuju druh tokenu, ktery ocekavam, tak zaroven zkontroluje jestli je to spravny typ, a vyhodi vyjimku, kdyz tomu tak neni. 
@@ -78,15 +53,12 @@ class Parser:
 		return program
 
 	def parseStatement(self):
-	  
 		""" STATEMENT ::= IF_STATEMENT | ASSIGNMENT 
 		
 		Statement je bud if, nebo zapis promenne. 
 		"""
 		if (self.top()[0] == Lexer.KW_IF):
 			return self.parseIfStatement()
-		elif(self.top()[0] == Lexer.KW_WHILE):
-			return self.parseWhileStatement()
 		else:
 			return self.parseAssignment()
 
@@ -110,7 +82,6 @@ class Parser:
 			self.pop()
 			rhs = self.parseE2()
 			lhs = BinaryOperator(lhs, rhs, Lexer.OP_EQ)
-		#TODO: tady někde to musí vyžadovat znak EL_ENDING
 		return lhs
 
 	def parseE2(self):
@@ -151,26 +122,16 @@ class Parser:
 		self.pop(Lexer.OP_PAROPEN)
 		condition = self.parseExpression()
 		self.pop(Lexer.OP_PARCLOSE)
-		trueCase = Block() # to aby se nam chybejici (ty jeden hajzle) vetev sprave zobrazila jako {}
-		falseCase = Block() # to aby se nam chybejici hovno vetev sprave zobrazila jako {}
+		trueCase = Block() # to aby se nam chybeji vetev sprave zobrazila jako {}
+		falseCase = Block() # to aby se nam chybeji vetev sprave zobrazila jako {}
 		if (self.top()[0] == Lexer.OP_BRACEOPEN): # kdyz hned po podmince je {, vim ze je to if cast
 			trueCase = self.parseBlock()
 		if (self.top()[0] == Lexer.KW_ELSE): # jinak za ifem muze byt jeste else pro else cast
 			self.pop()
 			falseCase = self.parseBlock()
-		# cokoli ostatniho by bylo za Ifem, neni soucasti Ifu
+		# cokoli ostatniho by bylo za ifem, neni soucasti ifu
 		return If(condition, trueCase, falseCase)
-		
-	def parseWhileStatement(self):
-		self.pop(Lexer.KW_WHILE)
-		self.pop(Lexer.OP_PAROPEN)
-		condition = self.parseExpression()
-		self.pop(Lexer.OP_PARCLOSE)
-		trueCase = Block() # to aby se nam chybejici (ty jeden hajzle) vetev sprave zobrazila jako {}
-		if (self.top()[0] == Lexer.OP_BRACEOPEN): # kdyz hned po podmince je {, vim ze je to if cast
-			trueCase = self.parseBlock()
-		return While(condition, trueCase)
-		
+
 	def parseBlock(self):
 		""" BLOCK ::= op_braceopen { STATEMENT } op_braceclose
 
