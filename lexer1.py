@@ -22,17 +22,19 @@ class Lexer:
 	EOF = "<EOF>" # typ token pro konec souboru, End Of File, oznacuje, ze uz neni zadny dalsi token za nim
 	_EOF = (EOF, None) # tohle je token, je to tuple z typu, a hodnoty, hodnota EOF je zadna
 	NUMBER = "number" # token pro cislo, jeho hodnotou bude hodnota cisla
-	IDENT = "ident" # token pro identifikator, jeho hodnotou bude retezec s identifikatorem 
+	IDENT = "ident" # token pro identifikator, jeho hodnotou bude retezec s identifikatorem
 	# tohle jsou jen ukazky operatoru a klicovych slov, vase budou vypadat podle toho, jak bude vypadat vas jazyk
-	KW_VARIABLE = "variable"
-	KW_FUNCTION = "function"
 	KW_IF = "if" # klicove slovo if 
 	KW_ELSE = "else" # klicove slovo else
-	OP_ADD = "+" #operator scitani
-	OP_SUBTRACT = "-"
+	OP_ADD = "+" # operator scitani
+	OP_SUB = "-" # operator odcitani
+	OP_PAROPEN = "(" 
+	OP_PARCLOSE = ")"
+	OP_BRACEOPEN = "{" # {
+	OP_BRACECLOSE = "}"# }
+	OP_EQ = "==" # operator porovnani
 	OP_ASSIGN = "=" # operator prirazeni
-	B_BLOCKSTART = "{"
-	B_BLOCKEND = "}"
+
 
 	def __init__(self):
 		""" Inicializuje lexikalni analyzator. Zalozi pole tokenu, zalozi seznam klicovych slov, atd. """
@@ -40,15 +42,12 @@ class Lexer:
 		self._keywords = {} # seznam klicovych slov. Ulozena jsou jako [klicove slovo] = typ tokenu odpovidajici
 		self._keywords["esli"] = Lexer.KW_IF # takhle pridate vlastni klicova slova
 		self._keywords["jinac"] = Lexer.KW_ELSE
-		self._keywords["promenna"] = Lexer.KW_VARIABLE #TODO - provizorní
-		self._keywords["bazmek"] = Lexer.KW_FUNCTION
-		self._operators = {}
-		self._operators["secte"] = Lexer.OP_ADD	#TODO - provizorní;
-		self._operators["cmajzne"] = Lexer.OP_SUBTRACT
-		self._operators["navali"] = Lexer.OP_ASSIGN
-		self._brackets = {}
-		self._brackets["vocat"] = Lexer.B_BLOCKSTART
-		self._brackets["pocat"] = Lexer.B_BLOCKEND
+		self._keywords["plus"] = Lexer.OP_ADD
+		self._keywords["minus"] = Lexer.OP_SUB
+		self._keywords["je"] = Lexer.OP_EQ
+		self._keywords["dela"] = Lexer.OP_ASSIGN
+		self._keywords["potom"] = Lexer.OP_BRACEOPEN
+		self._keywords["."] = Lexer.OP_BRACECLOSE
 		self._top = 0 # ukazatel na token ktery vrati funkce topToken() vysvetlime si pozdeji
 		self._string = "" # aktualne zpracovavany retezec
 		self._pos = 0 # pozice v aktualne zpracovavanem retezci
@@ -82,7 +81,7 @@ class Lexer:
 
 	def error(self, reason):
 		""" Funkce pro prehlednost, vypise ze doslo k chybe, k jake chybe doslo, a skonci program. """
-		print("Krpa! "+ reason)
+		print("Pri analyze doslo k chybe: ", reason)
 		sys.exit(1)
 
 	def addToken(self, tokenType, tokenValue = None):
@@ -104,7 +103,7 @@ class Lexer:
 			self.popChar()
 		self.addToken(Lexer.NUMBER, value)
 	
-	def parseIdentifierOrKeywordOrOperator(self):
+	def parseIdentifierOrKeyword(self):
 		""" Naparsuje identifikator nebo klicove slovo. Identifikator ma typ IDENT a svuj nazev jako hodnotu. Klicove slovo hodnotu nema, a typ ma podle toho, co je zac. Klicove slovo je takovy identifikator, ktery je ve slovniku klicovych slov, ktery jste inicializovali v metode __init__ nahore. """
 		i = self._pos
 		if (not isLetter(self.topChar())):
@@ -112,22 +111,14 @@ class Lexer:
 		while (isLetter(self.topChar())):
 			self.popChar()
 		value = self._string[i : self._pos]
-		if (value.lower() in self._keywords):
-			self.addToken(self._keywords[value.lower()])
-		elif (value.lower() in self._operators):
-			self.addToken(self._operators[value.lower()])
-		elif (value.lower() in self._brackets):
-			self.addToken(self._brackets[value.lower()])
+		if (value in self._keywords):
+			self.addToken(self._keywords[value])
 		else:
 			self.addToken(Lexer.IDENT, value)
 
 	
 	def analyzeString(self, string):
 		""" Rozkouskuje dany retezec na tokeny. Nastavi aktualne zpracovavany retezec na ten co funkci posleme, vynuluje aktualni pozici a vola funkci pro naparsovani tokenu dokuc neni cely retezec analyzovan. """
-		if(string[-1] != "."):
-		  self.error("Chybi tecka.")
-		  return -1
-		string = string.replace(".", "")
 		self._string = string + "\0" # na konec retezce pridame znak s kodem 0 (to neni 0 jako cifra, ale neviditelny znak). Ten se nesmi v retezci vyskytovat a my s nim jednoduse poznavame, ze jsme na konci. 
 		self._pos = 0
 		while (self._pos < len(self._string)):
@@ -138,18 +129,36 @@ class Lexer:
 		self.skipWhitespace()
 		c = self.topChar()
 		if (isLetter(c)):
-			self.parseIdentifierOrKeywordOrOperator()
+			self.parseIdentifierOrKeyword()
 		elif (isDigit(c)):
 			self.parseNumber()
+		elif (c == '+'):
+			self.popChar()
+			self.addToken(Lexer.OP_ADD)
+		elif (c == '-'):
+			self.popChar()
+			self.addToken(Lexer.OP_SUB)
+		elif (c == '('):
+			self.popChar()
+			self.addToken(Lexer.OP_PAROPEN)
+		elif (c == ')'):
+			self.popChar()
+			self.addToken(Lexer.OP_PARCLOSE)
+		elif (c == '.'):
+			self.popChar()
+			self.addToken(Lexer.OP_BRACECLOSE)
+		elif (c == '='):
+			self.popChar()
+			c = self.topChar()
+			if (c == '='):
+				self.popChar()
+				self.addToken(Lexer.OP_EQ)
+			else:
+				self.addToken(Lexer.OP_ASSIGN)
 		elif (c == '\0'):
 			self._pos += 1
 			pass
 		else:
-			self.error("Neznamy znak na vstupu! : "+c)
+			self.error("Krpa! Neznamy znak na vstupu!")
 
 
-# Tohle je ukazka pouziti a testovani
-l = Lexer() # timhle si zalozite objekt lexilaniho analyzatoru
-l.analyzeString("4 Promenna vocat huhu pocat 23,4 secte navali 3.") # timhle mu reknete, aby naparsoval string, ktery jste napsali
-while (not l.isEOF()): # tohle slouzi k vypsani vsech tokenu
-	print(l.popToken())
