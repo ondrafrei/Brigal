@@ -5,14 +5,14 @@ from slparser import Parser
 
 def testLexer():
 	""" Ukazka pouziti lexeru. """
-	s = " if (a == 4) { a = 2 + 3 } else { a = a + (b - 2) }"
+	s = " esli (kocka je ziva) potom pes dela haf. jinac potom pes dela kulovy."
 	l = Lexer() # timhle si zalozite objekt lexilaniho analyzatoru
 	l.analyzeString(s) # timhle mu reknete, aby naparsoval string, ktery jste napsali
 	while (not l.isEOF()): # tohle slouzi k vypsani vsech tokenu
 		print(l.popToken())
 
 def testParser():
-	s = " if (a == 4) { a = 2 + 3 } else { a = a + (b - 2) }"
+	s = " esli (kocka je ziva) potom pes dela haf. jinac potom pes dela kulovy."
 	l = Lexer() # timhle si zalozite objekt lexilaniho analyzatoru
 	l.analyzeString(s) # timhle mu reknete, aby naparsoval string, ktery jste napsali
 	p = Parser(l) # zalozim si parser a dam mu lexer ze ktereho bude cist tokeny
