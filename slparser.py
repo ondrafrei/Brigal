@@ -59,9 +59,18 @@ class Parser:
 		"""
 		if (self.top()[0] == Lexer.KW_IF):
 			return self.parseIfStatement()
+		elif (self.top()[] == Lexer.FUNCTION):
+                        return self.parseFunction()
 		else:
 			return self.parseAssignment()
 
+        def parseFunction(self):
+                functionName = self.pop(Lexer.FUNCTION)[1]
+                self.pop(Lexer.OP_PAROPEN)
+                arguments = []
+                for arg in 
+                self.pop(Lexer.OP_PARCLOSE)
+        
 	def parseAssignment(self):
 		""" ASSIGNMENT ::= ident op_assign EXPRESSION
 	   
@@ -83,6 +92,9 @@ class Parser:
 			rhs = self.parseE2()
 			lhs = BinaryOperator(lhs, rhs, Lexer.OP_EQ)
 		return lhs
+
+	def parseFunction():
+                return 
 
 	def parseE2(self):
 		""" E2 ::= F { op_add | op_sub F }
