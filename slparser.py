@@ -59,19 +59,10 @@ class Parser:
 		"""
 		if (self.top()[0] == Lexer.KW_IF):
 			return self.parseIfStatement()
-		elif (self.top()[] == Lexer.FUNCTION):
-                        return self.parseFunction()
 		else:
 			return self.parseAssignment()
 
-        def parseFunction(self):
-                functionName = self.pop(Lexer.FUNCTION)[1]
-                self.pop(Lexer.OP_PAROPEN)
-                arguments = []
-                for arg in 
-                self.pop(Lexer.OP_PARCLOSE)
-        
-	def parseAssignment(self):
+        def parseAssignment(self):
 		""" ASSIGNMENT ::= ident op_assign EXPRESSION
 	   
 		Ulozeni hodnoty do promenne vypada tak, ze na leve strane je identifikator promenne, hned za nim je operator prirazeni a za nim je vyraz, ktery vypocitava hodnotu, kterou do promenne chci ulozit. Tohle je zjednodusena verze prirazeni, viz komentare k hodine. 

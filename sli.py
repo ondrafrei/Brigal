@@ -13,13 +13,12 @@ def testLexer():
 		print(l.popToken())
 
 def testParser():
-        #s = " esli (kocka je ziva) potom pes dela haf. jinac potom pes dela kulovy."
-        s = "jdisa dela 3 = 1 hovno dela 2 vytiskni(jdisa)"
-	l = Lexer() # timhle si zalozite objekt lexilaniho analyzatoru
-	l.analyzeString(s) # timhle mu reknete, aby naparsoval string, ktery jste napsali
-	p = Parser(l) # zalozim si parser a dam mu lexer ze ktereho bude cist tokeny
-	ast = p.parse() # naparsuju co mam v lexeru a vratim AST 
-	print(ast) # zobrazim ten strom
+        s = "jdisa dela 3 + 1 hovno dela 2 + jdisa"
+	l = Lexer()
+	l.analyzeString(s)
+	p = Parser(l)
+	ast = p.parse()
+	print(ast)
 	f = Frame()
 	ast.execute(f)
 

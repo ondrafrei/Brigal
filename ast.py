@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 		
 class Block:
 	""" Blok prikazu. 
@@ -63,6 +64,13 @@ class VariableRead:
 	def __str__(self):
 		return self.variableName
 
+	def execute(self, frame):
+                try:
+                        return frame[self.variableName]
+                except KeyError:
+                        print("Variable named %s does not exist." % self.variableName)
+                        sys.exit(1)
+
 class VariableWrite:
 	""" Zapis hodnoty do promenne. Krom nazvu promenne si pamatuje i vyraz, kterym se vypocita hodnota. """
 	def __init__(self, variableName, rhs):
@@ -75,7 +83,7 @@ class VariableWrite:
 	def execute(self, frame):
                 value = self.rhs.execute(frame)
                 frame[self.variableName] = value
-
+        
 class Literal:
 	""" Literal (tedy jakakoli konstanta, cislo). """
 	def __init__(self, value):
