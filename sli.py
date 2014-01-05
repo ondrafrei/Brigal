@@ -13,7 +13,7 @@ def testLexer():
 		print(l.popToken())
 
 def testParser():
-        s = "jdisa dela 3 + 1 hovno dela 2 + jdisa"
+        s = "jdisa dela 3 + 1 hovno dela 2 + jdisa vypis potom hovno."
 	l = Lexer()
 	l.analyzeString(s)
 	p = Parser(l)

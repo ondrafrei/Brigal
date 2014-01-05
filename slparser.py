@@ -8,6 +8,7 @@ class Parser:
 	PROGRAM ::= { STATEMENT }
 	STATEMENT ::= IF_STATEMENT | ASSIGNMENT
 	ASSIGNMENT ::= ident op_assign EXPRESSION
+	FCALL ::= ident '(' [ EXPRESSION { , EXPRESSION } ] ')'
 	EXPRESSION ::= E2 { op_eq E2 }
 	E2 ::= F { op_add | op_sub F }
 	F ::= number | ident | op_paropen EXPRESSION op_parclose
@@ -21,7 +22,6 @@ class Parser:
 	def __init__(self, lexer):
 		""" Zalozi parser a zapamatuje si lexer, se kterym bude pracovat. """
 		self.lexer = lexer
-		pass
 
 
 	def pop(self, type = None):
@@ -57,10 +57,12 @@ class Parser:
 		
 		Statement je bud if, nebo zapis promenne. 
 		"""
-		if (self.top()[0] == Lexer.KW_IF):
-			return self.parseIfStatement()
-		else:
-			return self.parseAssignment()
+		if (self.top()[0] == Lexer.IDENT):
+                        return self.parseAssignment()
+                elif (self.top()[0] == Lexer.FUNCTION):
+                        return self.parseF()
+		elif (self.top()[0] == Lexer.KW_IF):
+                        return self.parseIfStatement()
 
         def parseAssignment(self):
 		""" ASSIGNMENT ::= ident op_assign EXPRESSION
@@ -84,9 +86,6 @@ class Parser:
 			lhs = BinaryOperator(lhs, rhs, Lexer.OP_EQ)
 		return lhs
 
-	def parseFunction():
-                return 
-
 	def parseE2(self):
 		""" E2 ::= F { op_add | op_sub F }
 	   
@@ -100,7 +99,7 @@ class Parser:
 		return lhs
 
 	def parseF(self):
-		""" F ::= number | ident | op_paropen EXPRESSION op_parclose
+                """ F ::= number | ident | op_paropen EXPRESSION op_parclose
 	    
 		Faktorem vyrazu pak je bud cislo (literal), nebo nazev promenne, v tomto pripade se vzdycky jedna o cteni promenne a nebo znova cely vyraz v zavorkach. 
 	    """
@@ -108,13 +107,30 @@ class Parser:
 			value = self.pop()[1]
 			return Literal(value)
 		elif (self.top()[0] == Lexer.IDENT):
-			variableName = self.pop()[1]
-			return VariableRead(variableName)
+                        return VariableRead(self.pop(Lexer.IDENT))
+                elif(self.top()[0] == Lexer.FUNCTION):
+                        fname = self.pop(Lexer.FUNCTION)
+                        print(fname)
+                        if (self.top()[0] == Lexer.OP_BRACEOPEN):
+                                args = []
+                                self.pop()
+                                print("piča")
+                                
+                                if ( self.top()[0] != Lexer.OP_BRACECLOSE):
+                                        print("here")
+                                        args.append(self.parseF())
+                                        while (self.top() == Lexer.OP_COMMA):
+                                                print "ahoj"
+                                                pop()
+                                args.append(self.parseExpression())
+                                
+                                self.pop(Lexer.PAR_CLOSE)
+                                return FunctionCall(fname, args)
 		else:
-			self.pop(Lexer.OP_PAROPEN)
+			self.pop(Lexer.PAR_OPEN)
 			result = self.parseExpression()
-			self.pop(Lexer.OP_PARCLOSE)
-			return result 
+			self.pop(Lexer.PAR_CLOSE)
+			return result
 
 	def parseIfStatement(self):
 		""" IF_STATEMENT ::= if op_paropen EXPRESSION op_parclose [ BLOCK ] [ else BLOCK ]

@@ -57,7 +57,7 @@ class FunctionPrint:
                 print(self.dataToPrint.execute(frame))
         
 class VariableRead:
-	""" Cteni hodnoty ulozene v promenne. """
+        """ Cteni hodnoty ulozene v promenne. """
 	def __init__(self, variableName):
 		self.variableName = variableName
 
