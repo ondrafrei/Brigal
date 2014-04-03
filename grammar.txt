@@ -1,29 +1,50 @@
 kw_function: bazmek
 kw_if: esli
 kw_else: jinac
+kw_while: dokat
 op_assign: navali
 sign_minus: -
 op_add: plus
 op_subtract: minus
 op_multiply: krat
 op_divide: deleno
+op_equals: je shodne s
+op_bigger: je vetsi nez
+op_smaller: je mensi nez
 par_open: (
 par_close: )
 block_start: vocat
 block_end: pocat
 keyword: function_name|kw_if|kw_else|kw_function
 kw_function_call: Hola
-array_operator: #
+pole1: [
+pole2: ]
 
-ENDING: .|:
-LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY
-EXPRESSION: E1 {op_assign E1}
-E1: E2 {op_add|op_subtract|op_multiply|op_divide E2}|
-E2: {sign_minus} F
-F: ident|number|string|par_open EXPRESSION par_close
-FC_CALL: kw_function_call F {par_open F{, F} par_close} ENDING
-FC_DEFINE: kw_function F par_open {F{, F}} par_close block_start EXPRESSION {ENDING EXPRESSION} block_end ENDING
-ARRAY_.. : F array_operator F|array_operator
+ident = a..z|A..Z{0..0|a..z|A..Z}	
+number = 0..9{0..9}[.0..9{0..9}]
 
-hovno ## = "piča"
-hovno #1 
+PROGRAM: { BLOCK }
+BLOCK: block_start { LINE } block_end
+LINE: EXPRESSION|FC_CALL|FC_DEFINE|ARRAY|CYCLE ENDING
+
+ENDING: . ENDLINE
+DVOJTECKA: :
+THEN: ,
+LINE: 
+
+EXPRESSION ::= E1 [ op_assing E2 ] 
+E2 ::= E2 { op_equal E3 }
+E3 ::= E3 { ( op_bigger | op_smaller ) E4 }
+E4 ::= E4 { ( op_add | op_subtract ) E5 }
+E5 ::= E7 { ( op_multiply | op_devide ) E6 }
+E6 ::= [ sign_minus ] F
+
+F: ident|number|string| par_open EXPRESSION par_close
+FC_CALL: kw_function_call ident  par_open [ F{, F} ] par_close  ENDING
+FC_DEFINE: kw_function F par_open {F{, F}} par_close DVOJTECKA BLOCK
+
+CONDITION: EXPRESSION 
+CYCLE: WHILE
+WHILE: kw_while CONDITION THEN BLOCK
+IFELSE: kw_if CONDITION THEN BLOCK [ kw_else BLOCK ]
+
