@@ -34,13 +34,6 @@ class Frame:
                 raise KeyError("Tuten bazmek tu vubec nemam!! v*le.")
             return self.parent.getFunction(name)
 
-    def pokus(self,x):
-        if (self.parent != None):
-            return self.parent.pokus(x+1)
-        else:
-            return x
-
-
 def returnOnlyLiteral(x,frame):
     while (not isinstance(x, Literal)):
         x = x.execute(frame)
