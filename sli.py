@@ -24,24 +24,24 @@ def testParser():
             vocat
                 
                 pivot navali zfajrovat seznam.
-                mali navali [].
-                velci navali [].
+                haranti navali [].
+                borci navali [].
                 i navali 0 .
                 a navali dylka seznam.
                 dokat i je mensi nez a,
                     vocat
                         esli seznam[i] je mensi nez pivot,
                             vocat
-                                navalit seznam[i] do mali.
+                                navalit seznam[i] do haranti.
                             pocat,
                         jinac
                             vocat
-                                navalit seznam[i] do velci.
+                                navalit seznam[i] do borci.
                             pocat.
                         i navali i plus 1 .
                     pocat.
 
-                vystup navali hola quicksort (mali) plus pivot plus hola quicksort (velci).
+                vystup navali hola quicksort (haranti) plus pivot plus hola quicksort (borci).
                 bochnot vystup.
 
             pocat.
